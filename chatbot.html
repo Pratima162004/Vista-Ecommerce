@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Component</title>
+    <link rel="stylesheet" href="css/chatbot.css">
+    <script src="https://kit.fontawesome.com/4a3b1f73a2.js"></script>
+</head>
+<body>
+    <!-- Chatbot Button -->
+    <div id="chatbotToggle" class="chatbot-toggle">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <!-- Chatbot Window -->
+    <div id="chatbotWindow" class="chatbot-window hidden">
+        <div class="chatbot-header">
+            <h3>Vista Assistant</h3>
+            <button id="chatbotClose" class="chatbot-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="chatbotMessages" class="chatbot-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Hello! I'm your Vista shopping assistant. How can I help you today? I can help you find products, navigate the site, or answer questions about Vista.
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input-container">
+            <input type="text" id="chatbotInput" class="chatbot-input" placeholder="Type your message...">
+            <button id="chatbotSend" class="chatbot-send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
+

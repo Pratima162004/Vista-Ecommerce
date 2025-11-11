@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> Contact | Vista E-Commerce </title>
+    <link rel="icon" href="https://yt3.ggpht.com/a/AGF-l78km1YyNXmF0r3-0CycCA0HLA_i6zYn_8NZEg=s900-c-k-c0xffffffff-no-rj-mo" type="image/gif" sizes="16x16">
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/contact.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <script src="https://kit.fontawesome.com/4a3b1f73a2.js"></script>
+</head>
+<body>
+    <!-- HEADER -->
+    <div id="headerContainer"></div>
+    <script>
+        load("header.html");
+        function load(url)
+        {
+            var req = new XMLHttpRequest();
+            req.open("GET", url, false);
+            req.send(null);
+            document.getElementById("headerContainer").innerHTML = req.responseText;
+        }
+    </script>
+
+    <main id="contactMain">
+        <section id="contactSection">
+            <h1>Get in Touch</h1>
+            <p>Have a question about Vista or need support? Send us a message and we&rsquo;ll respond as soon as possible.</p>
+            <form id="contactForm">
+                <div class="formField">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="formField">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="formField">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" placeholder="How can we help?" required>
+                </div>
+                <div class="formField">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="6" placeholder="Write your message here..." required></textarea>
+                </div>
+                <button type="submit" id="contactSubmit">Submit</button>
+            </form>
+            <div id="contactConfirmation" class="hidden">Thank you for contacting us!</div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <div id="footerContainer"></div>
+    <script>
+        loadFooter("footer.html");
+        function loadFooter(url)
+        {
+            var req = new XMLHttpRequest();
+            req.open("GET", url, false);
+            req.send(null);
+            document.getElementById("footerContainer").innerHTML = req.responseText;
+        }
+    </script>
+
+    <script>
+        (function() {
+            var form = document.getElementById("contactForm");
+            var confirmation = document.getElementById("contactConfirmation");
+
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                form.reset();
+                form.classList.add("hidden");
+                confirmation.classList.remove("hidden");
+            });
+        })();
+    </script>
+
+    <!-- CHATBOT -->
+    <div id="chatbotContainer"></div>
+    <script>
+        loadChatbot("chatbot.html");
+        function loadChatbot(url)
+        {
+            req = new XMLHttpRequest();
+            req.open("GET", url, false);
+            req.send(null);
+            document.getElementById("chatbotContainer").innerHTML = req.responseText;
+            // Load chatbot script after HTML is loaded (only if not already loaded)
+            if (!document.querySelector('script[src="js/chatbot.js"]')) {
+                var script = document.createElement('script');
+                script.src = 'js/chatbot.js';
+                document.body.appendChild(script);
+            }
+        }
+    </script>
+</body>
+</html>
+
