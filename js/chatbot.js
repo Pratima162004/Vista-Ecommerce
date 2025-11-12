@@ -106,9 +106,54 @@ RESPONSE GUIDELINES:
         }
     }
 
-    // Check if message is about navigation
+    // Enhanced navigation detection - maps products to pages with auto-navigation
     function checkNavigationIntent(message) {
-        const navKeywords = {
+        const lowerMessage = message.toLowerCase();
+        
+        // Product keywords that should auto-navigate to clothing page
+        const productKeywords = {
+            'sweatshirt': 'clothing.html',
+            'sweatshirts': 'clothing.html',
+            'shirt': 'clothing.html',
+            'shirts': 'clothing.html',
+            'top': 'clothing.html',
+            'tops': 'clothing.html',
+            't-shirt': 'clothing.html',
+            'tshirt': 'clothing.html',
+            't shirt': 'clothing.html',
+            'dress': 'clothing.html',
+            'dresses': 'clothing.html',
+            'pants': 'clothing.html',
+            'trousers': 'clothing.html',
+            'jeans': 'clothing.html',
+            'jacket': 'clothing.html',
+            'jackets': 'clothing.html',
+            'hoodie': 'clothing.html',
+            'hoodies': 'clothing.html',
+            'apparel': 'clothing.html',
+            'wear': 'clothing.html',
+            'outfit': 'clothing.html',
+            'outfits': 'clothing.html',
+            // Accessories
+            'bag': 'accessories.html',
+            'bags': 'accessories.html',
+            'jewelry': 'accessories.html',
+            'jewellery': 'accessories.html',
+            'watch': 'accessories.html',
+            'watches': 'accessories.html',
+            'belt': 'accessories.html',
+            'belts': 'accessories.html',
+            'wallet': 'accessories.html',
+            'wallets': 'accessories.html',
+            'sunglasses': 'accessories.html',
+            'hat': 'accessories.html',
+            'hats': 'accessories.html',
+            'cap': 'accessories.html',
+            'caps': 'accessories.html'
+        };
+        
+        // Direct navigation keywords (require confirmation)
+        const directNavKeywords = {
             'home': 'index.html',
             'homepage': 'index.html',
             'main page': 'index.html',
@@ -121,13 +166,21 @@ RESPONSE GUIDELINES:
             'contact': 'contact.html',
             'contact us': 'contact.html'
         };
-
-        const lowerMessage = message.toLowerCase();
-        for (const [keyword, page] of Object.entries(navKeywords)) {
+        
+        // Check product keywords first (auto-navigate)
+        for (const [keyword, page] of Object.entries(productKeywords)) {
             if (lowerMessage.includes(keyword)) {
-                return page;
+                return { page: page, autoNavigate: true };
             }
         }
+        
+        // Check direct navigation keywords (with confirmation)
+        for (const [keyword, page] of Object.entries(directNavKeywords)) {
+            if (lowerMessage.includes(keyword)) {
+                return { page: page, autoNavigate: false };
+            }
+        }
+        
         return null;
     }
 
@@ -137,10 +190,14 @@ RESPONSE GUIDELINES:
         
         // Website-related keywords
         const websiteKeywords = {
-            'sweatshirt': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections. Would you like me to help you navigate to our clothing page?",
-            'shirt': "We offer a variety of shirts in our Men's and Women's Clothing collections. You can browse our clothing page to see all available styles and sizes.",
-            'top': "We have a wonderful collection of tops for women! Check out our Women's Clothing section to see all the latest styles and designs.",
+            'sweatshirt': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections.",
+            'sweatshirts': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections.",
+            'shirt': "We offer a variety of shirts in our Men's and Women's Clothing collections.",
+            'shirts': "We offer a variety of shirts in our Men's and Women's Clothing collections.",
+            'top': "We have a wonderful collection of tops for women! Check out our Women's Clothing section.",
+            'tops': "We have a wonderful collection of tops for women! Check out our Women's Clothing section.",
             'clothing': "We have a wide range of clothing for both men and women. You can browse our clothing page to see all available items including shirts, sweatshirts, tops, and more!",
+            'clothes': "We have a wide range of clothing for both men and women. You can browse our clothing page to see all available items!",
             'accessories': "We offer various accessories for both men and women including bags, jewelry, and more. Visit our accessories page to see the full collection.",
             'cart': "You can view your shopping cart and proceed to checkout by visiting our cart page. Would you like me to take you there?",
             'checkout': "To complete your purchase, please visit the cart page where you can review your items and proceed with checkout.",
@@ -160,21 +217,6 @@ RESPONSE GUIDELINES:
         // Check for website-related queries
         for (const [keyword, response] of Object.entries(websiteKeywords)) {
             if (lowerMessage.includes(keyword)) {
-                return response;
-            }
-        }
-        
-        // Check for navigation intent
-        const navKeywords = {
-            'home': "You can visit our homepage to see featured products and browse our collections.",
-            'clothing': "Our clothing page has a great selection of men's and women's clothing. Would you like me to take you there?",
-            'accessories': "Check out our accessories page for men's and women's accessories!",
-            'cart': "You can view your shopping cart by visiting the cart page. Would you like me to take you there?",
-            'contact': "Visit our contact page to get in touch with us. We're here to help!"
-        };
-        
-        for (const [keyword, response] of Object.entries(navKeywords)) {
-            if (lowerMessage.includes(keyword) && (lowerMessage.includes('go') || lowerMessage.includes('show') || lowerMessage.includes('take') || lowerMessage.includes('visit'))) {
                 return response;
             }
         }
@@ -245,7 +287,9 @@ RESPONSE GUIDELINES:
         chatbotSend.disabled = true;
 
         // Check for navigation intent
-        const navPage = checkNavigationIntent(message);
+        const navResult = checkNavigationIntent(message);
+        const navPage = navResult ? navResult.page : null;
+        const shouldAutoNavigate = navResult ? navResult.autoNavigate : false;
         
         // Show typing indicator
         showTypingIndicator();
@@ -254,11 +298,17 @@ RESPONSE GUIDELINES:
             // Get response from Gemini
             let botResponse = await sendToGemini(message);
 
-            // If navigation detected and not already mentioned, add navigation help
-            if (navPage && !botResponse.toLowerCase().includes(navPage)) {
+            // If navigation detected, add appropriate message
+            if (navPage) {
                 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
                 if (navPage !== currentPage) {
-                    botResponse += `\n\nWould you like me to take you to the ${navPage.replace('.html', '')} page?`;
+                    if (shouldAutoNavigate) {
+                        // For product searches, auto-navigate
+                        botResponse += `\n\nTaking you to our ${navPage.replace('.html', '')} page now...`;
+                    } else {
+                        // For direct navigation requests, ask for confirmation
+                        botResponse += `\n\nWould you like me to take you to the ${navPage.replace('.html', '')} page?`;
+                    }
                 }
             }
 
@@ -268,8 +318,20 @@ RESPONSE GUIDELINES:
             // Add bot response
             addMessage(botResponse, false);
 
-            // Handle navigation - check if response suggests navigation or user explicitly asked
-            if (navPage) {
+            // Handle automatic navigation for product searches
+            if (navPage && shouldAutoNavigate) {
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                if (navPage !== currentPage) {
+                    // Auto-navigate after a short delay to show the message
+                    setTimeout(() => {
+                        window.location.href = navPage;
+                    }, 1500); // 1.5 second delay
+                    return; // Exit early since we're navigating
+                }
+            }
+
+            // Handle navigation with confirmation for direct requests
+            if (navPage && !shouldAutoNavigate) {
                 const lowerResponse = botResponse.toLowerCase();
                 const lowerMessage = message.toLowerCase();
                 const wantsNavigation = lowerMessage.includes('go to') || 
