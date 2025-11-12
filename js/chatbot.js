@@ -19,8 +19,8 @@ AVAILABLE PRODUCTS:
 
 AVAILABLE PAGES:
 - Homepage (index.html) - Main page with product listings
-- Clothing (clothing.html) - Browse clothing items
-- Accessories (accessories.html) - Browse accessories
+- Clothing (content.html#clothing) - Browse clothing items
+- Accessories (content.html#accessories) - Browse accessories
 - Shopping Cart (cart.html) - View cart and checkout
 - Contact (contact.html) - Contact form page
 - Product Details - Individual product pages
@@ -28,8 +28,8 @@ AVAILABLE PAGES:
 NAVIGATION HELP:
 When users ask to navigate, help them by suggesting the appropriate page. You can mention:
 - "Go to the homepage" → index.html
-- "Show me clothing" → clothing.html
-- "Show me accessories" → accessories.html
+- "Show me clothing" → content.html#clothing
+- "Show me accessories" → content.html#accessories
 - "View my cart" → cart.html
 - "Contact us" → contact.html
 
@@ -78,17 +78,15 @@ RESPONSE GUIDELINES:
     function addMessage(text, isUser) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-        
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
         contentDiv.textContent = text;
-        
         messageDiv.appendChild(contentDiv);
         chatbotMessages.appendChild(messageDiv);
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
     }
 
-    // Show typing indicator
+    // Typing indicator
     function showTypingIndicator() {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message bot-message typing-indicator';
@@ -97,180 +95,151 @@ RESPONSE GUIDELINES:
         chatbotMessages.appendChild(typingDiv);
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
     }
-
-    // Remove typing indicator
     function removeTypingIndicator() {
         const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
+        if (typingIndicator) typingIndicator.remove();
     }
 
-    // Enhanced navigation detection - maps products to pages with auto-navigation
+    // Enhanced navigation detection - supports products -> content sections
     function checkNavigationIntent(message) {
         const lowerMessage = message.toLowerCase();
-        
-        // Product keywords that should auto-navigate to clothing page
+
+        // Product keywords → clothing/accessories sections (auto-navigate)
         const productKeywords = {
-            'sweatshirt': 'clothing.html',
-            'sweatshirts': 'clothing.html',
-            'shirt': 'clothing.html',
-            'shirts': 'clothing.html',
-            'top': 'clothing.html',
-            'tops': 'clothing.html',
-            't-shirt': 'clothing.html',
-            'tshirt': 'clothing.html',
-            't shirt': 'clothing.html',
-            'dress': 'clothing.html',
-            'dresses': 'clothing.html',
-            'pants': 'clothing.html',
-            'trousers': 'clothing.html',
-            'jeans': 'clothing.html',
-            'jacket': 'clothing.html',
-            'jackets': 'clothing.html',
-            'hoodie': 'clothing.html',
-            'hoodies': 'clothing.html',
-            'apparel': 'clothing.html',
-            'wear': 'clothing.html',
-            'outfit': 'clothing.html',
-            'outfits': 'clothing.html',
+            // Clothing
+            'sweatshirt': 'content.html#clothing',
+            'sweatshirts': 'content.html#clothing',
+            'shirt': 'content.html#clothing',
+            'shirts': 'content.html#clothing',
+            'top': 'content.html#clothing',
+            'tops': 'content.html#clothing',
+            't-shirt': 'content.html#clothing',
+            't shirt': 'content.html#clothing',
+            'tshirt': 'content.html#clothing',
+            'dress': 'content.html#clothing',
+            'dresses': 'content.html#clothing',
+            'pants': 'content.html#clothing',
+            'trousers': 'content.html#clothing',
+            'jeans': 'content.html#clothing',
+            'jacket': 'content.html#clothing',
+            'jackets': 'content.html#clothing',
+            'hoodie': 'content.html#clothing',
+            'hoodies': 'content.html#clothing',
+            'apparel': 'content.html#clothing',
+            'wear': 'content.html#clothing',
+            'outfit': 'content.html#clothing',
+            'outfits': 'content.html#clothing',
             // Accessories
-            'bag': 'accessories.html',
-            'bags': 'accessories.html',
-            'jewelry': 'accessories.html',
-            'jewellery': 'accessories.html',
-            'watch': 'accessories.html',
-            'watches': 'accessories.html',
-            'belt': 'accessories.html',
-            'belts': 'accessories.html',
-            'wallet': 'accessories.html',
-            'wallets': 'accessories.html',
-            'sunglasses': 'accessories.html',
-            'hat': 'accessories.html',
-            'hats': 'accessories.html',
-            'cap': 'accessories.html',
-            'caps': 'accessories.html'
+            'accessories': 'content.html#accessories',
+            'accessory': 'content.html#accessories',
+            'bag': 'content.html#accessories',
+            'bags': 'content.html#accessories',
+            'jewelry': 'content.html#accessories',
+            'jewellery': 'content.html#accessories',
+            'watch': 'content.html#accessories',
+            'watches': 'content.html#accessories',
+            'belt': 'content.html#accessories',
+            'belts': 'content.html#accessories',
+            'wallet': 'content.html#accessories',
+            'wallets': 'content.html#accessories',
+            'sunglasses': 'content.html#accessories',
+            'hat': 'content.html#accessories',
+            'hats': 'content.html#accessories',
+            'cap': 'content.html#accessories',
+            'caps': 'content.html#accessories'
         };
-        
-        // Direct navigation keywords (require confirmation)
+
+        // Direct page navigation (ask confirmation)
         const directNavKeywords = {
             'home': 'index.html',
             'homepage': 'index.html',
             'main page': 'index.html',
-            'clothing': 'clothing.html',
-            'clothes': 'clothing.html',
-            'accessories': 'accessories.html',
+            'clothing': 'content.html#clothing',
+            'clothes': 'content.html#clothing',
             'cart': 'cart.html',
             'shopping cart': 'cart.html',
             'checkout': 'cart.html',
             'contact': 'contact.html',
             'contact us': 'contact.html'
         };
-        
-        // Check product keywords first (auto-navigate)
-        for (const [keyword, page] of Object.entries(productKeywords)) {
-            if (lowerMessage.includes(keyword)) {
-                return { page: page, autoNavigate: true };
-            }
+
+        for (const [k, page] of Object.entries(productKeywords)) {
+            if (lowerMessage.includes(k)) return { page, autoNavigate: true };
         }
-        
-        // Check direct navigation keywords (with confirmation)
-        for (const [keyword, page] of Object.entries(directNavKeywords)) {
-            if (lowerMessage.includes(keyword)) {
-                return { page: page, autoNavigate: false };
-            }
+        for (const [k, page] of Object.entries(directNavKeywords)) {
+            if (lowerMessage.includes(k)) return { page, autoNavigate: false };
         }
-        
         return null;
     }
 
-    // Fallback response system for when API fails
+    // Fallback response system when API fails
     function getFallbackResponse(userMessage) {
         const lowerMessage = userMessage.toLowerCase();
-        
-        // Website-related keywords
+
         const websiteKeywords = {
-            'sweatshirt': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections.",
-            'sweatshirts': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections.",
-            'shirt': "We offer a variety of shirts in our Men's and Women's Clothing collections.",
-            'shirts': "We offer a variety of shirts in our Men's and Women's Clothing collections.",
-            'top': "We have a wonderful collection of tops for women! Check out our Women's Clothing section.",
-            'tops': "We have a wonderful collection of tops for women! Check out our Women's Clothing section.",
-            'clothing': "We have a wide range of clothing for both men and women. You can browse our clothing page to see all available items including shirts, sweatshirts, tops, and more!",
-            'clothes': "We have a wide range of clothing for both men and women. You can browse our clothing page to see all available items!",
-            'accessories': "We offer various accessories for both men and women including bags, jewelry, and more. Visit our accessories page to see the full collection.",
-            'cart': "You can view your shopping cart and proceed to checkout by visiting our cart page. Would you like me to take you there?",
-            'checkout': "To complete your purchase, please visit the cart page where you can review your items and proceed with checkout.",
-            'contact': "You can reach out to us through our contact page. We're located in Delhi, Purana Qila and we'd love to hear from you!",
-            'vista': "Vista is an e-commerce store located in Delhi, Purana Qila. We offer men's and women's clothing and accessories. How can I help you find what you're looking for?",
-            'price': "For specific pricing information, please browse our product pages. You'll find detailed pricing for each item there.",
-            'size': "We offer various sizes for our clothing items. Check the product details page for specific size availability.",
-            'delivery': "For delivery information, please contact us through our contact page. We're happy to help with shipping details!",
-            'return': "For return and exchange policies, please contact us through our contact page. We'll be happy to assist you!",
-            'men': "We have a great selection of men's clothing and accessories! Browse our Men's Clothing and Men's Accessories sections to see what's available.",
-            'women': "We offer a wide variety of women's clothing and accessories! Check out our Women's Clothing and Women's Accessories sections.",
-            'product': "We have a diverse range of products including clothing and accessories for both men and women. Would you like to browse our clothing or accessories pages?",
-            'buy': "You can add items to your cart and purchase them through our website. Browse our clothing or accessories pages to get started!",
-            'order': "To place an order, simply add items to your cart and proceed to checkout. You can view your cart at any time to review your selections."
+            'sweatshirt': "We have a great selection of sweatshirts available in our clothing section.",
+            'sweatshirts': "We have a great selection of sweatshirts available in our clothing section.",
+            'shirt': "We offer a variety of shirts in our clothing collections.",
+            'shirts': "We offer a variety of shirts in our clothing collections.",
+            'top': "We have a wonderful collection of tops. Check out our clothing section.",
+            'tops': "We have a wonderful collection of tops. Check out our clothing section.",
+            'clothing': "We have a wide range of clothing for men and women. Browse our clothing section.",
+            'clothes': "We have a wide range of clothing for men and women. Browse our clothing section.",
+            'accessories': "We offer various accessories for men and women. Visit our accessories section.",
+            'cart': "You can view your shopping cart and proceed to checkout on the cart page.",
+            'checkout': "Please use the cart page to review your items and proceed with checkout.",
+            'contact': "Reach out to us via our contact page. We’re located in Delhi, Purana Qila.",
+            'vista': "Vista is an e-commerce store in Delhi, Purana Qila. How can I help you shop today?",
+            'price': "For pricing, please browse product pages for details.",
+            'size': "Sizes vary per item; see each product details page.",
+            'delivery': "For delivery information, please contact us via the contact page.",
+            'return': "For returns and exchanges, please contact us via the contact page.",
+            'men': "Browse men’s clothing and accessories in our content page.",
+            'women': "Browse women’s clothing and accessories in our content page.",
+            'product': "We carry clothing and accessories. Would you like clothing or accessories?",
+            'buy': "Add items to cart then proceed to checkout on the cart page.",
+            'order': "Add items to cart and complete checkout on the cart page."
         };
-        
-        // Check for website-related queries
-        for (const [keyword, response] of Object.entries(websiteKeywords)) {
-            if (lowerMessage.includes(keyword)) {
-                return response;
-            }
+
+        for (const [k, response] of Object.entries(websiteKeywords)) {
+            if (lowerMessage.includes(k)) return response;
         }
-        
-        // General questions - provide helpful but redirecting response
+
         if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-            return "Hello! I'm your Vista shopping assistant. I can help you find products, navigate our website, or answer questions about Vista. What would you like to know?";
+            return "Hello! I can help you find products, navigate pages, or answer questions about Vista.";
         }
-        
         if (lowerMessage.includes('help')) {
-            return "I'm here to help you with Vista! I can assist you with:\n- Finding products (clothing, accessories)\n- Navigating to different pages\n- Answering questions about our store\n\nWhat would you like help with?";
+            return "I can help you find products, navigate to clothing/accessories, view cart, and more. What do you need?";
         }
-        
-        // Default response for general questions
-        return "I'm here to help you with Vista shopping! I can assist you with finding products, navigating our website, or answering questions about Vista. For general questions unrelated to shopping, I'd recommend browsing our website directly. How can I help you with Vista today?";
+        return "I'm here to help you with Vista shopping. Ask me about clothing, accessories, navigating pages, or your cart.";
     }
 
     // Send message to Gemini API
     async function sendToGemini(userMessage) {
         try {
             const prompt = `${WEBSITE_CONTEXT}\n\nUser: ${userMessage}\n\nAssistant:`;
-
             const response = await fetch(GEMINI_API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }]
+                    contents: [{ parts: [{ text: prompt }] }]
                 })
             });
 
             if (!response.ok) {
-                // If API fails, use fallback
                 console.warn('Gemini API request failed, using fallback response');
                 return getFallbackResponse(userMessage);
             }
 
             const data = await response.json();
-            
             if (data.candidates && data.candidates[0] && data.candidates[0].content) {
                 return data.candidates[0].content.parts[0].text.trim();
             } else {
-                // If response format is invalid, use fallback
                 console.warn('Invalid API response format, using fallback');
                 return getFallbackResponse(userMessage);
             }
         } catch (error) {
             console.error('Gemini API Error:', error);
-            // Use fallback response instead of generic error
             return getFallbackResponse(userMessage);
         }
     }
@@ -278,81 +247,75 @@ RESPONSE GUIDELINES:
     // Handle message sending
     async function handleSendMessage() {
         const message = chatbotInput.value.trim();
-        
         if (!message) return;
 
-        // Add user message
         addMessage(message, true);
         chatbotInput.value = '';
         chatbotSend.disabled = true;
 
-        // Check for navigation intent
         const navResult = checkNavigationIntent(message);
         const navPage = navResult ? navResult.page : null;
         const shouldAutoNavigate = navResult ? navResult.autoNavigate : false;
-        
-        // Show typing indicator
+
         showTypingIndicator();
 
         try {
-            // Get response from Gemini
             let botResponse = await sendToGemini(message);
 
-            // If navigation detected, add appropriate message
             if (navPage) {
                 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                if (navPage !== currentPage) {
+                const targetBase = navPage.split('#')[0];
+                if (targetBase !== currentPage) {
                     if (shouldAutoNavigate) {
-                        // For product searches, auto-navigate
-                        botResponse += `\n\nTaking you to our ${navPage.replace('.html', '')} page now...`;
+                        botResponse += `\n\nTaking you to our ${targetBase.replace('.html', '')} page now...`;
                     } else {
-                        // For direct navigation requests, ask for confirmation
-                        botResponse += `\n\nWould you like me to take you to the ${navPage.replace('.html', '')} page?`;
+                        botResponse += `\n\nWould you like me to take you to the ${targetBase.replace('.html', '')} page?`;
                     }
                 }
             }
 
-            // Remove typing indicator
             removeTypingIndicator();
-
-            // Add bot response
             addMessage(botResponse, false);
 
-            // Handle automatic navigation for product searches
+            // Auto navigation for product searches
             if (navPage && shouldAutoNavigate) {
                 const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                if (navPage !== currentPage) {
-                    // Auto-navigate after a short delay to show the message
-                    setTimeout(() => {
+                const targetBase = navPage.split('#')[0];
+                setTimeout(() => {
+                    if (targetBase !== currentPage) {
                         window.location.href = navPage;
-                    }, 1500); // 1.5 second delay
-                    return; // Exit early since we're navigating
-                }
+                    } else {
+                        // Same page: just adjust hash to scroll to section
+                        if (navPage.includes('#')) {
+                            window.location.hash = navPage.split('#')[1];
+                        }
+                    }
+                }, 1200);
+                return;
             }
 
-            // Handle navigation with confirmation for direct requests
+            // Confirmation flow for direct nav
             if (navPage && !shouldAutoNavigate) {
                 const lowerResponse = botResponse.toLowerCase();
                 const lowerMessage = message.toLowerCase();
-                const wantsNavigation = lowerMessage.includes('go to') || 
-                                       lowerMessage.includes('show me') || 
-                                       lowerMessage.includes('take me') ||
-                                       lowerMessage.includes('navigate') ||
-                                       lowerResponse.includes('would you like') ||
-                                       lowerResponse.includes('take you');
+                const wantsNavigation = lowerMessage.includes('go to') ||
+                                        lowerMessage.includes('show me') ||
+                                        lowerMessage.includes('take me') ||
+                                        lowerMessage.includes('navigate') ||
+                                        lowerResponse.includes('would you like') ||
+                                        lowerResponse.includes('take you');
 
                 if (wantsNavigation) {
                     setTimeout(() => {
-                        const shouldNavigate = confirm(`Would you like to go to the ${navPage.replace('.html', '').replace(/\b\w/g, l => l.toUpperCase())} page?`);
-                        if (shouldNavigate) {
-                            window.location.href = navPage;
-                        }
-                    }, 1000);
+                        const targetBase = navPage.split('#')[0];
+                        const shouldNavigate = confirm(`Would you like to go to the ${targetBase.replace('.html', '').replace(/\b\w/g, l => l.toUpperCase())} page?`);
+                        if (shouldNavigate) window.location.href = navPage;
+                    }, 800);
                 }
             }
         } catch (error) {
             removeTypingIndicator();
-            addMessage("I apologize, but I encountered an error. Please try again or contact us through our contact page.", false);
+            addMessage("I encountered an error. Please try again or use the contact page.", false);
         } finally {
             chatbotSend.disabled = false;
             chatbotInput.focus();
@@ -361,7 +324,6 @@ RESPONSE GUIDELINES:
 
     // Event listeners
     chatbotSend.addEventListener('click', handleSendMessage);
-    
     chatbotInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -369,4 +331,3 @@ RESPONSE GUIDELINES:
         }
     });
 })();
-
