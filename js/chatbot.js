@@ -131,6 +131,67 @@ RESPONSE GUIDELINES:
         return null;
     }
 
+    // Fallback response system for when API fails
+    function getFallbackResponse(userMessage) {
+        const lowerMessage = userMessage.toLowerCase();
+        
+        // Website-related keywords
+        const websiteKeywords = {
+            'sweatshirt': "We have a great selection of sweatshirts available! You can find them in our Men's and Women's Clothing sections. Would you like me to help you navigate to our clothing page?",
+            'shirt': "We offer a variety of shirts in our Men's and Women's Clothing collections. You can browse our clothing page to see all available styles and sizes.",
+            'top': "We have a wonderful collection of tops for women! Check out our Women's Clothing section to see all the latest styles and designs.",
+            'clothing': "We have a wide range of clothing for both men and women. You can browse our clothing page to see all available items including shirts, sweatshirts, tops, and more!",
+            'accessories': "We offer various accessories for both men and women including bags, jewelry, and more. Visit our accessories page to see the full collection.",
+            'cart': "You can view your shopping cart and proceed to checkout by visiting our cart page. Would you like me to take you there?",
+            'checkout': "To complete your purchase, please visit the cart page where you can review your items and proceed with checkout.",
+            'contact': "You can reach out to us through our contact page. We're located in Delhi, Purana Qila and we'd love to hear from you!",
+            'vista': "Vista is an e-commerce store located in Delhi, Purana Qila. We offer men's and women's clothing and accessories. How can I help you find what you're looking for?",
+            'price': "For specific pricing information, please browse our product pages. You'll find detailed pricing for each item there.",
+            'size': "We offer various sizes for our clothing items. Check the product details page for specific size availability.",
+            'delivery': "For delivery information, please contact us through our contact page. We're happy to help with shipping details!",
+            'return': "For return and exchange policies, please contact us through our contact page. We'll be happy to assist you!",
+            'men': "We have a great selection of men's clothing and accessories! Browse our Men's Clothing and Men's Accessories sections to see what's available.",
+            'women': "We offer a wide variety of women's clothing and accessories! Check out our Women's Clothing and Women's Accessories sections.",
+            'product': "We have a diverse range of products including clothing and accessories for both men and women. Would you like to browse our clothing or accessories pages?",
+            'buy': "You can add items to your cart and purchase them through our website. Browse our clothing or accessories pages to get started!",
+            'order': "To place an order, simply add items to your cart and proceed to checkout. You can view your cart at any time to review your selections."
+        };
+        
+        // Check for website-related queries
+        for (const [keyword, response] of Object.entries(websiteKeywords)) {
+            if (lowerMessage.includes(keyword)) {
+                return response;
+            }
+        }
+        
+        // Check for navigation intent
+        const navKeywords = {
+            'home': "You can visit our homepage to see featured products and browse our collections.",
+            'clothing': "Our clothing page has a great selection of men's and women's clothing. Would you like me to take you there?",
+            'accessories': "Check out our accessories page for men's and women's accessories!",
+            'cart': "You can view your shopping cart by visiting the cart page. Would you like me to take you there?",
+            'contact': "Visit our contact page to get in touch with us. We're here to help!"
+        };
+        
+        for (const [keyword, response] of Object.entries(navKeywords)) {
+            if (lowerMessage.includes(keyword) && (lowerMessage.includes('go') || lowerMessage.includes('show') || lowerMessage.includes('take') || lowerMessage.includes('visit'))) {
+                return response;
+            }
+        }
+        
+        // General questions - provide helpful but redirecting response
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+            return "Hello! I'm your Vista shopping assistant. I can help you find products, navigate our website, or answer questions about Vista. What would you like to know?";
+        }
+        
+        if (lowerMessage.includes('help')) {
+            return "I'm here to help you with Vista! I can assist you with:\n- Finding products (clothing, accessories)\n- Navigating to different pages\n- Answering questions about our store\n\nWhat would you like help with?";
+        }
+        
+        // Default response for general questions
+        return "I'm here to help you with Vista shopping! I can assist you with finding products, navigating our website, or answering questions about Vista. For general questions unrelated to shopping, I'd recommend browsing our website directly. How can I help you with Vista today?";
+    }
+
     // Send message to Gemini API
     async function sendToGemini(userMessage) {
         try {
@@ -151,7 +212,9 @@ RESPONSE GUIDELINES:
             });
 
             if (!response.ok) {
-                throw new Error('API request failed');
+                // If API fails, use fallback
+                console.warn('Gemini API request failed, using fallback response');
+                return getFallbackResponse(userMessage);
             }
 
             const data = await response.json();
@@ -159,11 +222,14 @@ RESPONSE GUIDELINES:
             if (data.candidates && data.candidates[0] && data.candidates[0].content) {
                 return data.candidates[0].content.parts[0].text.trim();
             } else {
-                throw new Error('Invalid response format');
+                // If response format is invalid, use fallback
+                console.warn('Invalid API response format, using fallback');
+                return getFallbackResponse(userMessage);
             }
         } catch (error) {
             console.error('Gemini API Error:', error);
-            return "I'm sorry, I'm having trouble connecting right now. Please try again in a moment, or feel free to browse our website directly!";
+            // Use fallback response instead of generic error
+            return getFallbackResponse(userMessage);
         }
     }
 

@@ -61,6 +61,28 @@ body {
     align-items: center;
 }
 
+.chatbot-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chatbot-logo {
+    width: 32px;
+    height: 32px;
+    background-color: #000000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.chatbot-logo i {
+    color: white;
+    font-size: 18px;
+}
+
 .chatbot-header h3 {
     margin: 0;
     font-size: 18px;
